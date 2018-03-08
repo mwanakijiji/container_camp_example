@@ -1,0 +1,67 @@
+# This is the script to run for making a warping/astrometric solution to LMIRCam, using data taken
+# in Nov and Dev 2016
+
+# created by E.S., Nov 2016
+# revamped to be more user-friendly, Nov 2017
+
+import numpy as np
+from astrom_lmircam_soln import *
+from astrom_lmircam_soln import find_pinhole_centroids
+from astrom_lmircam_soln import polywarp
+from astrom_lmircam_soln import polywarp_v2 # the check for polywarp
+from astrom_lmircam_soln import dewarp
+from astrom_lmircam_soln import make_barb_plot
+from astropy.io import fits
+import matplotlib.pyplot as plt
+import pickle
+import ipdb
+from scipy import spatial
+from pytictoc import TicToc
+
+#####################################################################
+# FIND THE MAPPING BETWEEN THE IDEAL AND EMPIRICAL PINHOLE COORDS 
+
+# retrieve pickled pinhole coordinates
+def get_dewarp_soln(fileString='test'):
+    '''
+    read the matched and sorted pickled pinhole coordinates
+    '''
+    picklefile = 'dewarp_soln_'+fileString+'.pkl'
+    fo1=open(picklefile,'rb')
+    dat=pickle.load(fo1)
+    fo1.close()
+    Kx = np.array(dat['Kx']) # FYI
+    Ky = np.array(dat['Ky']) # FYI
+    dewarp_coords =  np.array(dat['dewarp_coords']) # this is the important one
+    return dewarp_coords
+
+def apply_dewarp(startFrame,stopFrame,writeoutString='test'):
+    
+    #####################################################################
+    # APPLY THE DEWARP SOLUTION TO THE SCIENCE IMAGES
+
+    dewarp_coords = get_dewarp_soln()
+    import ipdb; ipdb.set_trace()
+    print('------------------------------')
+    for frameNum in range(startFrame,stopFrame):
+        print('Dewarping frame %05i'%frameNum+'...')
+
+        t = TicToc() # create instance of timer
+        t.tic() # start timer
+
+        # grab the pre-dewarp image and header
+        imageAsterism, header = fits.getdata(calibrated_trapezium_data_stem+
+                                       'step01_darkSubtBadPixCorrect/lm_171106_'+'%05i'%frameNum+'.fits',
+                                       0, header=True)
+
+        # dewarp the image
+        dewarpedAsterism = dewarp.dewarp_with_precomputed_coords(imageAsterism,
+                                                             dewarp_coords,
+                                                             order=3)
+
+        # write out
+        fits.writeto(calibrated_trapezium_data_stem+
+                 'step02_dewarped/lm_171106_'+'%05i'%frameNum+'.fits',
+                     np.squeeze(dewarpedAsterism), header, overwrite=False)
+
+        t.toc()
