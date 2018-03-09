@@ -32,5 +32,5 @@ RUN chmod +x /usr/src/apply_dewarp_soln.py
 # way of writing the path in the script? 
 
 # run the application
-CMD ["python", "/usr/src/apply_dewarp_soln.py"]
+CMD ["python", "/usr/src/apply_dewarp_soln.py", "--input_dir", "/usr/src/read_data/", "--output_dir", "/usr/src/write_data/"]
 
