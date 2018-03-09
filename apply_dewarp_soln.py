@@ -14,7 +14,7 @@ import os
 import time
 import multiprocessing
 from multiprocessing import Pool
-
+import argparse
 
 #####################################################################
 # SET THE DEWARP COEFFICIENTS
@@ -65,15 +65,19 @@ Ky = [[  1.47852158e+01,   9.92480569e-01,  -6.05953133e-06,   8.04550607e-09],
 '''
 #####################################################################
 # set file paths
+parser = argparse.ArgumentParser()
+parser.add_argument("--input_dir", help="Path to input directory", type=str)
+parser.add_argument("--output_dir", help="Path to output directory", type=str)
+args = parser.parse_args()
 
 # the base of the filepath that contains all data
-dirTreeStem = ('')
+#dirTreeStem = ('')
 
 # the extension of dirTreeStem which contains raw data to read in
-retrievalPiece = ('read_data/')
+retrievalPiece = args.input
 
 # the extension of dirTreeStem which will contain the written data with distortion removed
-depositPiece = ('write_data/')
+depositPiece = args.output
 
 # piece of general filename stem (no need to change this)
 fileNameStem = ('lm_171002_')
@@ -93,8 +97,7 @@ def dewarp_frame_multiproc(frameNum, extra_dim=True):
     print('Dewarping frame '+str(frameNum)+'...')
 
     # grab the pre-dewarp image and header
-    image, header = fits.getdata(dirTreeStem+
-                                 retrievalPiece+
+    image, header = fits.getdata(retrievalPiece+
                                  fileNameStem+
                                  str("{:0>5d}".format(frameNum))+
                                  '.fits',
@@ -111,7 +114,7 @@ def dewarp_frame_multiproc(frameNum, extra_dim=True):
 
     hdu = fits.PrimaryHDU(dewarped, header=header)
     hdulist = fits.HDUList([hdu])
-    hdulist.writeto(dirTreeStem+depositPiece+fileNameStem+str("{:0>5d}".format(frameNum))+'.fits',
+    hdulist.writeto(depositPiece+fileNameStem+str("{:0>5d}".format(frameNum))+'.fits',
                     overwrite=True)
         
     elapsed_time = time.time() - start_time

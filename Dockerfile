@@ -12,6 +12,7 @@ RUN apt-get -y update && apt-get install -y python2.7 python-pip
 #RUN pip install matplotlib=='1.5.1'
 RUN pip install astropy=='2.0.2'
 RUN pip install scipy=='0.17.0' 
+RUN pip install argparse
 
 # add a file
 #ADD apply_dewarp_soln.py /usr/src/
