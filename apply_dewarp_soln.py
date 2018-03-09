@@ -9,11 +9,12 @@ from astrom_lmircam_soln import *
 from astrom_lmircam_soln import polywarp
 from astrom_lmircam_soln import dewarp
 from astropy.io import fits
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import os
 import time
 import multiprocessing
 from multiprocessing import Pool
+
 
 #####################################################################
 # SET THE DEWARP COEFFICIENTS
@@ -120,12 +121,16 @@ def dewarp_frame_multiproc(frameNum, extra_dim=True):
 
 # do it!
 start_time = time.time()
+dewarp_frame_multiproc(5)
+'''
 print('----------------------------------------')
 print('Using '+str(ncpu)+' CPUs.')
 print('----------------------------------------')
-pool = Pool(ncpu)
-channel_eq = pool.map(dewarp_frame_multiproc,[1]) #range(1,100))
+#pool = Pool(ncpu)
+pool = Pool(1)
+channel_eq = pool.map(dewarp_frame_multiproc,range(1,6)) #range(1,100))
 elapsed_time = time.time() - start_time
 print('----------------------------------------')
 print('Grand total: '+str(elapsed_time)+' sec!')
 print('----------------------------------------')
+'''
